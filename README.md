@@ -1,6 +1,81 @@
 [![English](https://img.shields.io/badge/Language-English-blue?style=for-the-badge)](README.md)
 [![한국어](https://img.shields.io/badge/Language-한국어-red?style=for-the-badge)](./docs/README_KO.md)
 
+---
+
+> ## 📣 **Attribution & Fork Notice**
+> 
+> This repository is a **fork/learning implementation** based on [**Decepticon**](https://github.com/PurpleAILAB/Decepticon) by [**PurpleAILAB**](https://github.com/PurpleAILAB).
+> 
+> **Original Project:** https://github.com/PurpleAILAB/Decepticon  
+> **License:** [Apache-2.0](LICENSE)  
+> **All credit** for the original concept, architecture, and core implementation goes to the PurpleAILAB team.
+>
+> ### 🎓 My Learning Journey
+> 
+> This fork was created for **educational purposes** to deeply understand modern AI-driven security frameworks. Through studying and experimenting with this project, I gained invaluable knowledge in:
+>
+> #### **🤖 AI & LLM Integration**
+> - **LangChain/LangGraph Framework**: Understanding state machines, graph-based agent orchestration, and workflow management
+> - **Multi-Agent Systems**: Learned how autonomous agents communicate, handoff tasks, and collaborate towards a common goal
+> - **ReAct Pattern**: Explored Reasoning + Acting paradigm for building intelligent decision-making agents
+> - **Prompt Engineering**: Crafted and optimized system prompts for specialized security agents (Reconnaissance, Initial Access, Planner, Summary)
+> - **Model Context Protocol (MCP)**: Integrating external tools and APIs into agent workflows using stdio and HTTP transports
+> - **LLM Provider Integration**: Working with OpenAI, Anthropic, OpenRouter, and local models via Ollama
+>
+> #### **🔴 Offensive Security & Red Teaming**
+> - **Penetration Testing Automation**: How AI agents can autonomously conduct reconnaissance, exploitation, and post-exploitation
+> - **MITRE ATT&CK Framework**: Mapping agent behaviors to real-world tactics, techniques, and procedures
+> - **Network Reconnaissance**: Automated service enumeration, vulnerability scanning, and target profiling
+> - **Credential Attacks**: Understanding brute-force, password spraying, and credential stuffing techniques
+> - **Exploit Development Workflow**: From vulnerability discovery to exploitation in an agent-driven context
+> - **Docker-based Attack Infrastructure**: Setting up isolated Kali Linux environments for safe testing
+>
+> #### **🏗️ Software Architecture & Design Patterns**
+> - **State Management**: Using LangGraph's state system to maintain context across agent interactions
+> - **Modular Tool Design**: Building reusable, composable security tools following MCP standards
+> - **Agent Handoff Patterns**: Designing seamless transitions between specialized agents (Planner → Recon → InitAccess → Summary)
+> - **Swarm vs Supervisor Architecture**: Comparing decentralized peer-to-peer vs centralized orchestration patterns
+> - **Error Handling & Resilience**: Building robust agents that gracefully handle failures and unexpected scenarios
+> - **Logging & Replay Systems**: Implementing comprehensive activity logging for debugging, auditing, and knowledge sharing
+>
+> #### **💻 Full-Stack Development**
+> - **Streamlit Web Framework**: Building interactive, real-time web UIs for agent monitoring and control
+> - **CLI Development**: Creating powerful command-line interfaces for automated workflows
+> - **Terminal UI Components**: Real-time output streaming, syntax highlighting, and interactive terminals
+> - **Theme System**: Implementing dark/light mode with CSS customization
+> - **Chat History & Replay**: Building temporal replay systems to review past agent interactions
+> - **Model Selection UI**: Dynamic switching between different LLM providers and configurations
+>
+> #### **🐳 DevOps & Infrastructure**
+> - **Docker & Docker Compose**: Containerizing attack infrastructure and target environments
+> - **Python Dependency Management**: Using `uv` for fast, modern Python package management
+> - **Environment Configuration**: Managing API keys, secrets, and configurations via `.env` files
+> - **Langsmith Integration**: Tracing, monitoring, and debugging LLM-powered applications
+> - **Cross-platform Scripting**: Writing portable scripts for Windows (PowerShell) and Unix (Bash)
+>
+> #### **🔬 Research & Experimentation**
+> - **Agentic Workflow Design**: Experimenting with different agent communication patterns and decision trees
+> - **Tool Integration**: Connecting security tools (nmap, hydra, metasploit) to AI agents via MCP
+> - **Persona Development**: Creating specialized agent personalities for different red team roles
+> - **Memory & Context Windows**: Understanding token limits and context management in long-running operations
+> - **Chain-of-Thought Reasoning**: Studying how agents break down complex security tasks into manageable steps
+>
+> #### **📚 Best Practices I Learned**
+> - The importance of **ethical hacking boundaries** and proper authorization
+> - How to structure **reproducible security research** through comprehensive logging
+> - The value of **open-source collaboration** in advancing security tools
+> - Why **transparent AI systems** matter in security contexts (explainability, auditability)
+> - The critical role of **continuous learning** in both AI and cybersecurity fields
+>
+> ---
+>
+> **🙏 Acknowledgment:**  
+> Massive thanks to the **PurpleAILAB team** for building such a comprehensive, well-architected, and educational project. This repository represents countless hours of research, development, and community contribution. If you're interested in the **original, actively maintained version** with the latest features and updates, please visit the [official PurpleAILAB/Decepticon repository](https://github.com/PurpleAILAB/Decepticon).
+>
+> **⭐ Please star the original project** if you find this technology valuable!
+
+---
 
 <div align="center">
   <img src="assets/logo_banner.png" alt="Decepticon Logo">

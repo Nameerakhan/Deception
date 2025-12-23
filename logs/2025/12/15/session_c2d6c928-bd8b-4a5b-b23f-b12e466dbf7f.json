@@ -1,0 +1,37 @@
+{
+  "session_id": "c2d6c928-bd8b-4a5b-b23f-b12e466dbf7f",
+  "start_time": "2025-12-15T17:11:37.905309",
+  "events": [
+    {
+      "event_type": "user_input",
+      "timestamp": "2025-12-15T17:12:57.001855",
+      "content": "Scan 192.168.1.1 with nmap"
+    },
+    {
+      "event_type": "user_input",
+      "timestamp": "2025-12-15T17:13:00.952587",
+      "content": "Perform reconnaissance on example.com"
+    },
+    {
+      "event_type": "user_input",
+      "timestamp": "2025-12-15T17:13:03.826927",
+      "content": "Show me what tools are available"
+    },
+    {
+      "event_type": "user_input",
+      "timestamp": "2025-12-15T17:13:06.882964",
+      "content": "Test SSH login with default credentials"
+    },
+    {
+      "event_type": "user_input",
+      "timestamp": "2025-12-15T17:13:10.058853",
+      "content": "Check for web vulnerabilities on target.com"
+    },
+    {
+      "event_type": "user_input",
+      "timestamp": "2025-12-15T17:13:33.634389",
+      "content": "Show available tools and agents"
+    }
+  ],
+  "model": "o1 Mini"
+}
