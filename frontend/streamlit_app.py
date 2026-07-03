@@ -16,6 +16,10 @@ load_dotenv()
 # 프로젝트 루트 경로 추가
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
+# MLflow (DagsHub) 실험 추적 초기화 - 설정 없으면 자동 비활성화
+from src.utils.tracking import mlflow_tracker
+mlflow_tracker.init_tracking()
+
 # 새로운 컴포넌트들
 from frontend.web.components.model_selection import ModelSelectionComponent
 from frontend.web.components.theme_ui import ThemeUIComponent

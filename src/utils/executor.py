@@ -5,12 +5,15 @@ Direct Executor - CLI 로직을 프론트엔드에서 직접 실행하는 모듈
 
 import asyncio
 import uuid
+import time
+import re
 from datetime import datetime
 from typing import Optional, Dict, Any, AsyncGenerator
 
 # CLI 모듈들을 직접 import
 from langchain_core.messages import HumanMessage
 from src.graphs.swarm import create_dynamic_swarm
+from src.utils.tracking import mlflow_tracker
 from src.utils.llm.config_manager import (
     update_llm_config, 
     get_current_llm_config,
@@ -111,7 +114,29 @@ class Executor:
         self._processed_message_ids = set()
         
         inputs = {"messages": [HumanMessage(content=user_input)]}
-        
+
+        # MLflow tracking - one run per attack scenario
+        cfg = get_current_llm_config()
+        host_match = re.search(r"\b\d{1,3}(?:\.\d{1,3}){3}\b", user_input)
+        mlflow_tracker.begin_run(
+            run_name="attack_scenario",
+            params={
+                "provider": cfg.provider,
+                "model_name": cfg.model_name,
+                "display_name": cfg.display_name,
+                "temperature": cfg.temperature,
+                "default_active_agent": "Planner",
+                "thread_id": self._thread_id,
+                "scenario": user_input[:250],
+            },
+            tags={
+                "interface": "streamlit",
+                "target_host": host_match.group(0) if host_match else None,
+            },
+        )
+        run_start = time.monotonic()
+        ai_messages = tool_messages = reached_summary = 0
+
         try:
             step_count = 0
             
@@ -126,8 +151,10 @@ class Executor:
                 for node, value in output.items():
                     # 에이전트 이름 결정 
                     agent_name = get_agent_name(namespace)
-                    
-                    # 메시지 처리 
+                    if agent_name == "Summary":
+                        reached_summary = 1
+
+                    # 메시지 처리
                     if "messages" in value and value["messages"]:
                         messages = value["messages"]
                         if messages:
@@ -137,6 +164,10 @@ class Executor:
                             )
                             
                             if should_display:
+                                if message_type == "ai":
+                                    ai_messages += 1
+                                elif message_type == "tool":
+                                    tool_messages += 1
                                 # 프론트엔드에서 처리할 수 있는 형태로 이벤트 생성
                                 event_data = {
                                     "type": "message",
@@ -157,19 +188,34 @@ class Executor:
                                 
                                 yield event_data
             
+            mlflow_tracker.log_metrics({
+                "latency_s": time.monotonic() - run_start,
+                "num_steps": step_count,
+                "num_ai_messages": ai_messages,
+                "num_tool_messages": tool_messages,
+                "reached_summary": reached_summary,
+            })
+
             # 완료 신호
             yield {
                 "type": "workflow_complete",
                 "step_count": step_count,
                 "timestamp": datetime.now().isoformat()
             }
-            
+
         except Exception as e:
+            mlflow_tracker.log_metrics({
+                "latency_s": time.monotonic() - run_start,
+                "num_steps": step_count,
+                "errored": 1,
+            })
             yield {
                 "type": "error",
                 "error": str(e),
                 "timestamp": datetime.now().isoformat()
             }
+        finally:
+            mlflow_tracker.end_run()
     
     def _should_display_message(self, message, agent_name: str, step_count: int):
         """메시지를 표시할지 결정 - CLI 로직과 완전히 동일"""

@@ -6,6 +6,7 @@ import os
 import time
 import json
 import hashlib
+import re
 from datetime import datetime
 from typing import Optional, Dict, Any, List, Set
 from dotenv import load_dotenv
@@ -66,6 +67,8 @@ from src.utils.memory import (
 from src.utils.logging.logger import get_logger
 # 리팩토링된 에이전트 관리자
 from src.utils.agents import AgentManager
+# MLflow (DagsHub) 실험 추적
+from src.utils.tracking import mlflow_tracker
 
 
 
@@ -866,6 +869,28 @@ class DecepticonCLI:
         step_count = 0
         event_count = 0  # ✅ event_count 초기화 추가
 
+        # MLflow tracking - one run per attack scenario
+        cfg = get_current_llm_config()
+        host_match = re.search(r"\b\d{1,3}(?:\.\d{1,3}){3}\b", user_input)
+        mlflow_tracker.begin_run(
+            run_name="attack_scenario",
+            params={
+                "provider": cfg.provider,
+                "model_name": cfg.model_name,
+                "display_name": cfg.display_name,
+                "temperature": cfg.temperature,
+                "default_active_agent": "Planner",
+                "thread_id": self.thread_id,
+                "scenario": user_input[:250],
+            },
+            tags={
+                "interface": "cli",
+                "target_host": host_match.group(0) if host_match else None,
+            },
+        )
+        run_start = time.monotonic()
+        tool_messages = 0
+
         with Progress(
             SpinnerColumn(),
             TextColumn("[progress.description]{task.description}"),
@@ -991,6 +1016,7 @@ class DecepticonCLI:
                                             tool_display_name = parse_tool_name(tool_name)
                                             
                                             # 로깅 - 도구 출력 (원본 데이터 사용)
+                                            tool_messages += 1
                                             self.logger.log_tool_output(
                                                 tool_name=tool_name,
                                                 output=original_content
@@ -1025,6 +1051,24 @@ class DecepticonCLI:
                 # 로깅 - 세션 자동 저장
                 self.logger.save_session()
 
+                # MLflow - 메트릭 및 세션 로그 아티팩트 기록
+                mlflow_tracker.log_metrics({
+                    "latency_s": time.monotonic() - run_start,
+                    "num_steps": step_count,
+                    "num_ai_messages": sum(len(r) for r in agent_responses.values()),
+                    "num_tool_messages": tool_messages,
+                    "reached_summary": 1 if "Summary" in agent_responses else 0,
+                })
+                if self.logger.current_session:
+                    try:
+                        session_path = self.logger._get_session_file_path(
+                            self.logger.current_session.session_id
+                        )
+                        mlflow_tracker.log_artifact(str(session_path))
+                    except Exception:
+                        pass
+                mlflow_tracker.end_run()
+
                 # 완료 요약
                 completion_panel = Panel(
                     f"[bold green]✅ Operation Completed[/bold green]\n\n"
@@ -1050,6 +1094,15 @@ class DecepticonCLI:
                     self.logger.save_session()
                 except Exception as log_error:
                     self.console.print(f"[yellow]Warning: Failed to save session: {log_error}[/yellow]")
+
+                # MLflow - 에러 메트릭 기록
+                mlflow_tracker.log_metrics({
+                    "latency_s": time.monotonic() - run_start,
+                    "num_steps": step_count,
+                    "num_tool_messages": tool_messages,
+                    "errored": 1,
+                })
+                mlflow_tracker.end_run()
 
                 error_panel = Panel(
                     f"[bold red]❌ Workflow Error[/bold red]\n\n"
@@ -1184,6 +1237,8 @@ class DecepticonCLI:
 async def main():
     """메인 엔트리 포인트"""
     try:
+        # MLflow (DagsHub) 실험 추적 초기화 - 설정 없으면 자동 비활성화
+        mlflow_tracker.init_tracking()
         cli = DecepticonCLI()
         await cli.run()
     except ImportError as e:
